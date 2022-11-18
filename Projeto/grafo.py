@@ -94,8 +94,8 @@ class Graph:
     def get_arc_cost(self, node1, node2):
         custoT=math.inf
         a=self.m_graph[node1]    # lista de arestas para aquele nodo
-        for (nodo,custo) in a:
-            if nodo==node2:
+        for (nodo,coord,custo) in a:
+            if coord==node2:
                 custoT=custo
 
         return custoT
@@ -127,9 +127,9 @@ class Graph:
             # calcular o custo do caminho funçao calcula custo.
             custoT= self.calcula_custo(path)
             return (path, custoT)
-        for (adjacente, peso) in self.m_graph[start]:
-            if adjacente not in visited:
-                resultado = self.procura_DFS(adjacente, end, path, visited)
+        for (adjacente, coord, peso) in self.m_graph[start]:
+            if coord not in visited:
+                resultado = self.procura_DFS(coord, end, path, visited)
                 if resultado is not None:
                     return resultado
         path.pop()  # se nao encontra remover o que está no caminho......
@@ -146,12 +146,13 @@ class Graph:
 
         #Converter para o formato usado pela biblioteca networkx
         for nodo in lista_v:
+            name = nodo.getName()
             n = nodo.getCoord()
             g.add_node(n)
-            for (adjacente, peso) in self.m_graph[n]:
-                lista = (n, adjacente)
+            for (adjacente, coord, peso) in self.m_graph[n]:
+                lista = (n, coord)
                 #lista_a.append(lista)
-                g.add_edge(n,n.getCoord(),adjacente,adjacente.getCoord(),weight=peso)
+                g.add_edge(name,n,n2=adjacente,coord2=coord,weight=peso)
 
         #desenhar o grafo
         pos = nx.spring_layout(g)

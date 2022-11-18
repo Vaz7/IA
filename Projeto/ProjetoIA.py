@@ -17,34 +17,36 @@ def parseMapa():
 def setUpGraph():
     y = 0
     x = 0
+    columns = len(mapElem[0])
+    rows = len(mapElem)
+    print('Rows: ' + str(rows) + ' Columns: ' + str(columns))
 
-    for line in mapElem:
-        for coiso in range(line):
-            print(str((x,y)))
-            if x-1 >= 0 and y+1 <= len(mapElem)-1:
-                addToGraph(mapElem[y][x],(x,y),mapElem[y+1][x-1],(x-1,y+1))
-            if x-1 >= 0 and y-1 >= 0:
-                addToGraph(mapElem[y][x],(x,y),mapElem[y-1][x-1],(x-1,y-1))
-            if x+1 <= len(mapElem[0])-1 and y+1 <= len(mapElem)-1:
-                addToGraph(mapElem[y][x],(x,y),mapElem[y+1][x+1],(x+1,y+1))
-            if x+1 <= len(mapElem[0])-1 and y-1 >= 0:
-                addToGraph(mapElem[y][x],(x,y),mapElem[y-1][x+1], (x+1,y-1))
-            if x+1 <= len(mapElem[0])-1:
+    for i in range(rows):
+        for j in range(columns):
+            if x+1 < columns:
                 addToGraph(mapElem[y][x],(x,y),mapElem[y][x+1],(x+1,y))
-                print('Cheguei aqui +x' + str((x,y)))
+                if y+1 < len(mapElem)-1:
+                    addToGraph(mapElem[y][x],(x,y),mapElem[y+1][x+1],(x+1,y+1))
+                if y-1 >= 0:
+                    addToGraph(mapElem[y][x],(x,y),mapElem[y-1][x+1],(x+1,y-1))
             if x-1 >= 0:
                 addToGraph(mapElem[y][x],(x,y),mapElem[y][x-1],(x-1,y))
-                print('Cheguei aqui -x' + str((x,y)))
-            if y+1 <= len(mapElem)-1:
+                if y+1 < len(mapElem)-1:
+                    addToGraph(mapElem[y][x],(x,y),mapElem[y+1][x-1],(x-1,y+1))
+                if y-1 >= 0:
+                    addToGraph(mapElem[y][x],(x,y),mapElem[y-1][x-1],(x-1,y-1))
+            if y+1 < len(mapElem)-1:
                 addToGraph(mapElem[y][x],(x,y),mapElem[y+1][x],(x,y+1))
-                print('Cheguei aqui +y' + str((x,y)))
             if y-1 >= 0:
                 addToGraph(mapElem[y][x],(x,y),mapElem[y-1][x],(x,y-1))
-                print('Cheguei aqui -y:' + str((x,y)))
             x += 1
+        x = 0
         y += 1
 
 def addToGraph(elem1,coord1,elem2,coord2):
+    if elem1 == 'P':
+        global start
+        start = coord1
     if elem2 == 'X':
         g.add_edge(elem1, coord1, elem2, coord2, 25)
     else:
@@ -56,9 +58,11 @@ def printGraph():
     for nodo in lista:
         coord = nodo.getCoord()
         print('Nodo ' + str(coord) + ' conhece:')
-        for (adjacente, coord2, peso) in g.m_graph[str(coord)]:
-            print('Sou o nodo:' + adjacente + ' estou na coord: ' + (coord2) + ' peso: ' + str(peso))
+        print(g.m_graph[coord])
 
 parseMapa()
 setUpGraph()
 printGraph()
+print(start)
+g.desenha()
+print(g.procura_DFS(start,(35,10),path=[],visited=set()))

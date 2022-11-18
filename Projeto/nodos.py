@@ -43,7 +43,7 @@ class Node:
     #neste caso dois nodos são iguais se os nomes forem iguais
     def __eq__(self, other):
         # são iguais se nome igual, não usa o id
-        return self.m_name == other.m_name and self.coord[0] == other.coord[0] and self.coord[1]
+        return self.m_name == other.m_name and self.coord == other.coord
 
     #Devolve o hash de um nodo. Ao implementar o método __eq__
     #torna-se também necessário definir __hash__. Caso
