@@ -15,6 +15,8 @@ class Node:
     def __init__(self, name, coord):
         self.m_name = str(name)
         self.coord = coord
+        #self.speed = speed         # velocidade atual
+        #self.previous = previous   # posição anterior no circuito
         #Posteriormente colocar o objeto que o nodo vai referenciar...
 
     #Devolve a representação na forma de string do nodo por forma a ser de leitura 'amigável'
