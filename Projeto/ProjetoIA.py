@@ -14,7 +14,8 @@ def parseMapa():
             i += 1
     print('Linhas: ' + str(i) + '\nColunas: ' + str(len(mapElem[0])))
 
-def setUpGraph():
+# Função que inicializa o grafo para uma procura não informada
+def setUpGraphNotInformed():
     y = 0
     x = 0
     columns = len(mapElem[0])
@@ -43,6 +44,30 @@ def setUpGraph():
         x = 0
         y += 1
 
+# Função que inicializa o grafo para uma procura informada
+def setUpGraphInformed():
+    y = 0
+    x = 0
+    aux = 0
+    temp = 0
+    columns = len(mapElem[0])
+    rows = len(mapElem)
+    print('Rows: ' + str(rows) + ' Columns: ' + str(columns))
+
+    for i in range(rows):
+        for j in range(columns):
+            for k in range(rows):
+                for n in range(columns):
+                    if (aux, temp) != (x, y) and aux <= columns-1:
+                        addToGraph(mapElem[y][x],(x,y),mapElem[temp][aux],(aux,temp))
+                    aux += 1
+                aux = 0
+                temp += 1
+            temp = 0
+            x += 1
+        x = 0
+        y += 1
+
 def addToGraph(elem1,coord1,elem2,coord2):
     if elem1 == 'P':
         global start
@@ -60,9 +85,25 @@ def printGraph():
         print('Nodo ' + str(coord) + ' conhece:')
         print(g.m_graph[coord])
 
+# Tenho de adicionar cenas ao nodo para conseguir usar as fórmulas da posição/velocidade/aceleração que estão no enunciado
 parseMapa()
-setUpGraph()
+setUpGraphNotInformed()
+#setUpGraphInformed()
 printGraph()
 print(start)
 g.desenha()
-print(g.procura_DFS(start,(35,10),path=[],visited=set()))
+#print(g.procura_BFS(start,(9,3),path=[],visited=set()))
+#não ligar a isto (cenas para testar consistência do algoritmo
+#low = 0
+##path = []
+#for i in range(10000):
+#    (current, custo) = g.procura_BFS(start, (9, 3))
+#    if i == 0:
+#        low = custo
+#        path = current
+#    if custo < low:
+#        low = custo
+#        path = current
+
+#print((path,low))
+print(g.procura_BFS(start,(9,3)))
