@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 
 #biblioteca necessária para se poder utilizar o valor math.inf  (infinito)
 import math
+from queue import Queue
 
 # Importar a classe nodo
 from nodos import Node
@@ -135,6 +136,44 @@ class Graph:
         path.pop()  # se nao encontra remover o que está no caminho......
         return None
 
+    def procura_BFS(self, start, end):
+        # definir nodos visitados para evitar ciclos
+        visited = set()
+        fila = Queue()
+
+        # adicionar o nodo inicial à fila e aos visitados
+        fila.put(start)
+        visited.add(start)
+
+        # garantir que o start node nao tem pais...
+        parent = dict()
+        parent[start] = None
+
+        path_found = False
+        while not fila.empty() and path_found == False:
+            nodo_atual = fila.get()
+            if nodo_atual == end:
+                path_found = True
+            else:
+                for (adjacente, coord, peso) in self.m_graph[nodo_atual]:
+                    if coord not in visited:
+                        fila.put(coord)
+                        parent[coord] = nodo_atual
+                        visited.add(coord)
+
+        # Reconstruir o caminho
+
+        path = []
+        if path_found:
+            path.append(end)
+            while parent[end] is not None:
+                path.append(parent[end])
+                end = parent[end]
+            path.reverse()
+            # funçao calcula custo caminho
+            custo = self.calcula_custo(path)
+        return (path, custo)
+
     ###########################
     # desenha grafo  modo grafico
     #########################
@@ -142,7 +181,7 @@ class Graph:
         ##criar lista de vertices
         lista_v = self.m_nodes
         lista_a = []
-        g=nx.Graph()
+        g=nx.DiGraph()
 
         #Converter para o formato usado pela biblioteca networkx
         for nodo in lista_v:
@@ -150,15 +189,20 @@ class Graph:
             n = nodo.getCoord()
             g.add_node(n)
             for (adjacente, coord, peso) in self.m_graph[n]:
-                lista = (n, coord)
+                lista1 = (n, name)
+                lista2 = (coord, adjacente)
                 #lista_a.append(lista)
-                g.add_edge(name,n,n2=adjacente,coord2=coord,weight=peso)
+                g.add_edge(n,coord,weight=peso)
 
         #desenhar o grafo
-        pos = nx.spring_layout(g)
+        #plt.figure(figsize=(19.2,10.8)) #1080p
+        #plt.figure(figsize=(25.6,14.4)) #1440p
+        plt.figure(figsize=(38.4,21.6))  #4k
+        #plt.figure(figsize=(76.8,43.2))  #8k
+        pos = nx.spring_layout(g,k=100000,iterations=1000)
         nx.draw_networkx(g, pos, with_labels=True, font_weight='bold')
         labels = nx.get_edge_attributes(g, 'weight')
         nx.draw_networkx_edge_labels(g, pos, edge_labels=labels)
 
-        plt.draw()
+        #plt.draw()
         plt.show()
