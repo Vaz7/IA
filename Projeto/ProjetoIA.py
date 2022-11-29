@@ -116,9 +116,9 @@ def printGraph():
 
 # Tenho de adicionar cenas ao nodo para conseguir usar as fórmulas da posição/velocidade/aceleração que estão no enunciado
 parseMapa()
-#setUpGraphNotInformed()
-setUpGraphInformed()
-setUpHeuristica()
+setUpGraphNotInformed()
+#setUpGraphInformed()
+#setUpHeuristica()
 printGraph()
 print(start)
 print(finish_line)
@@ -137,7 +137,7 @@ print(finish_line)
 #        path = current
 
 #print((path,low))
-#print(g.procura_BFS(start,finish_line))
-print(g.a_star(start, finish_line))
+print(g.procura_BFS(start,finish_line))
+#print(g.a_star(start, finish_line))
 # perguntar ao stor sobre os pesos (se temos de contabilizar as posições entre as coordenadas que percorremos)
 # perguntar ao stor como ir para o F mais próximo (e testar todas as posições entre a pos atual e o final)
