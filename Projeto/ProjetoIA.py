@@ -1,8 +1,12 @@
+import math
+
 from grafo import Graph
 from nodos import Node
+from math import sqrt
 
 mapElem = {}
 g = Graph()
+finish_line = set()
 
 def parseMapa():
     i = 0
@@ -72,11 +76,36 @@ def addToGraph(elem1,coord1,elem2,coord2):
     if elem1 == 'P':
         global start
         start = coord1
+    if elem1 == 'F':
+        finish_line.add(coord1)
     if elem2 == 'X':
         g.add_edge(elem1, coord1, elem2, coord2, 25)
     else:
         g.add_edge(elem1, coord1, elem2, coord2, 1)
 
+
+def getDist(coord):
+    x, y = coord
+    dist = 0
+
+    for (a, b) in finish_line:
+        current = sqrt((a-x)**2 + (b-y)**2)
+        if dist == 0 or current < dist:
+            dist = current
+
+    return dist
+
+
+def setUpHeuristica():
+    for nodo in g.m_nodes:
+        coord = nodo.getCoord()
+        name = nodo.getName()
+        h = getDist(coord)
+        if (name != 'F'):
+            h = getDist(coord)
+            g.add_heuristica(coord, name, h)
+        else:
+            g.add_heuristica(coord,name,0)
 
 def printGraph():
     lista = g.m_nodes
@@ -87,11 +116,13 @@ def printGraph():
 
 # Tenho de adicionar cenas ao nodo para conseguir usar as fórmulas da posição/velocidade/aceleração que estão no enunciado
 parseMapa()
-setUpGraphNotInformed()
-#setUpGraphInformed()
+#setUpGraphNotInformed()
+setUpGraphInformed()
+setUpHeuristica()
 printGraph()
 print(start)
-g.desenha()
+print(finish_line)
+#g.desenha()
 #print(g.procura_BFS(start,(9,3),path=[],visited=set()))
 #não ligar a isto (cenas para testar consistência do algoritmo
 #low = 0
@@ -106,4 +137,7 @@ g.desenha()
 #        path = current
 
 #print((path,low))
-print(g.procura_BFS(start,(9,3)))
+#print(g.procura_BFS(start,finish_line))
+print(g.a_star(start, finish_line))
+# perguntar ao stor sobre os pesos (se temos de contabilizar as posições entre as coordenadas que percorremos)
+# perguntar ao stor como ir para o F mais próximo (e testar todas as posições entre a pos atual e o final)
