@@ -1,6 +1,6 @@
 
 
-filepath = 'mapa.txt'
+filepath = 'Projeto/gigaMap.txt'
 with open(filepath) as fp:
     lines = fp.readlines()
 
