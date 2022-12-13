@@ -119,7 +119,7 @@ class Graph:
         path.append(start)
         visited.add(start)
 
-        if start == end:
+        if start in end:
             # calcular o custo do caminho funçao calcula custo.
             custoT = self.calcula_custo(path)
             return (path, custoT)
@@ -137,7 +137,7 @@ class Graph:
                 return nodo
 
     #####################################################
-    # Procura BFS
+    # Procura BFS em que o carro pode bater
     ######################################################
 
     def procura_BFS(self, start, end):
@@ -165,6 +165,51 @@ class Graph:
                 for (adjacente, coord, peso) in self.m_graph[nodo_atual]:
                     if coord not in visited:
                         if nodo.getName() != 'X' or nodo.getName() == 'X' and adjacente != 'X':
+                            fila.put(coord)
+                            parent[coord] = nodo_atual
+                            visited.add(coord)
+
+        # Reconstruir o caminho
+
+        path = []
+        if path_found:
+            path.append(nodo_atual)
+            while parent[nodo_atual] is not None:
+                path.append(parent[nodo_atual])
+                nodo_atual = parent[nodo_atual]
+            path.reverse()
+            # funçao calcula custo caminho
+            custo = self.calcula_custo(path)
+        return (path, custo)
+
+    #####################################################
+    # Procura BFS em que o carro nunca bate
+    ######################################################
+    def procura_BFS_NotHitting(self, start, end):
+        # definir nodos visitados para evitar ciclos
+        visited = set()
+        fila = Queue()
+
+        # adicionar o nodo inicial à fila e aos visitados
+        fila.put(start)
+        visited.add(start)
+
+        # garantir que o start node nao tem pais...
+        parent = dict()
+        parent[start] = None
+
+        path_found = False
+        while not fila.empty() and path_found == False:
+            nodo_atual = fila.get()
+
+            nodo = self.getNodo(nodo_atual)
+
+            if nodo_atual in end:
+                path_found = True
+            else:
+                for (adjacente, coord, peso) in self.m_graph[nodo_atual]:
+                    if coord not in visited:
+                        if nodo.getName() != 'X':
                             fila.put(coord)
                             parent[coord] = nodo_atual
                             visited.add(coord)
