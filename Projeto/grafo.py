@@ -18,6 +18,7 @@ from queue import Queue
 
 # Importar a classe nodo
 from nodos import Node
+from math import sqrt
 
 
 # Definição da classe grafo:
@@ -32,6 +33,8 @@ class Graph:
         self.m_directed = directed  # se o grafo é direcionado ou nao
         self.m_graph = {}  # dicionario para armazenar os nodos, arestas  e pesos
         self.m_h = {}  # dicionário para armazenar heuristica para cada nodo
+        self.rows = 0
+        self.columns = 0
 
     ##############################
     # Escrever o grafo como string
@@ -279,23 +282,65 @@ class Graph:
             lista.append((coord, peso))
         return lista
 
-    def getNeighboursV(self, nodo, velocidade):
+    def getNeighboursV(self, nodo, velocidade, end):
         lista = []
         vc, vl = velocidade
         x, y = nodo
 
+        #print(nodo)
         for (adjacente, coord, peso) in self.m_graph[nodo]:
-            if coord <= (x + vc + 1, y + vl + 1) or \
-                    coord <= (x + vc + 1, y + vl + 0) or \
-                    coord <= (x + vc + 1, y + vl + -1) or \
-                    coord <= (x + vc + 0, y + vl + 1) or \
-                    coord <= (x + vc + 0, y + vl + -1) or \
-                    coord <= (x + vc + -1, y + vl + -1) or \
-                    coord <= (x + vc + -1, y + vl + 0) or \
-                    coord <= (x + vc + -1, y + vl + 1):
+            #if coord == (x + vc + 1, y + vl + 1) or \
+            #        coord == (x + vc + -1, y + vl + 1) or \
+            #        coord == (x + vc + -1, y + vl + 0) or \
+            #        coord == (x + vc + 1, y + vl + 0) or \
+            #        coord == (x + vc + -1, y + vl + -1) or \
+            #        coord == (x + vc + 0, y + vl + -1) or \
+            #        coord == (x + vc + 0, y + vl + 1) or \
+            #        coord == (x + vc + 1, y + vl + -1):
+            #    lista.append((coord, peso))
+            cx, cy = coord
+            #if (x + vc + 1) >= cx >= (x + vc + -1) and cy == (y + vl + 1) or \
+            #   (x + vc + 1) >= cx >= (x + vc + -1) and cy == (y + vl + 0) or \
+            #   (x + vc + 1) >= cx >= (x + vc + -1) and cy == (y + vl + -1):
+            if cx >= self.columns:
+                cx = self.columns - 1
+            if cx < 0:
+                cx = 0
+            if cy >= self.rows:
+                cy = self.rows - 1
+            if cy < 0:
+                cy = 0
+
+            #if (cx - 1, cy) in end:
+            #    lista.append(((cx - 1, cy), 1))
+            #if (cx, cy - 1) in end:
+            #    lista.append(((cx, cy - 1), 1))
+            #if (cx - 1, cy - 1) in end:
+            #    lista.append(((cx - 1, cy - 1), 1))
+            #if (cx + 1, cy) in end:
+            #    lista.append(((cx + 1, cy), 1))
+            #if (cx, cy + 1) in end:
+            #    lista.append(((cx, cy + 1), 1))
+            #if (cx + 1, cy + 1) in end:
+            #    lista.append(((cx + 1, cy + 1), 1))
+            #if (cx + 1, cy - 1) in end:
+            #    lista.append(((cx + 1, cy - 1), 1))
+            #if (cx - 1, cy + 1) in end:
+            #    lista.append(((cx - 1, cy + 1), 1))
+
+            for finish in end:
+                fx, fy = finish
+                if (x + -abs(vc) + -1) <= fx <= (x + abs(vc) + 1) and (y + -abs(vl) + -1) <= fy <= (y + abs(vl) + 1):
+                    lista.append((finish, 1))
+
+            if (x + abs(vc) + -1) <= cx <= (x + abs(vc) + 1) and (y + abs(vl) + -1) <= cy <= (y + abs(vl) + 1) or \
+               (x + abs(vc) + -1) <= cx <= (x + abs(vc) + 1) and (y + -abs(vl) + -1) <= cy <= (y + -abs(vl) + 1) or \
+               (x + -abs(vc) + -1) <= cx <= (x + -abs(vc) + 1) and (y + abs(vl) + -1) <= cy <= (y + abs(vl) + 1) or \
+               (x + -abs(vc) + -1) <= cx <= (x + -abs(vc) + 1) and (y + -abs(vl) + -1) <= cy <= (y + -abs(vl) + 1):
                 lista.append((coord, peso))
 
-        print(lista)
+        # TODO: Avaliar se esta lista está a ser bem construída
+        #print(lista)
 
         return lista
 
@@ -307,38 +352,47 @@ class Graph:
         open_list = set([start])
         closed_list = set([])
         cost = {}  # rever isto!
+        cost[start] = 0
         nodo_ant = start
-        speed = (0, 0)
+        speed = {}
+        speed[start] = (0, 0)
 
         parents = {}
         parents[start] = start
 
+        # TODO: Ver cenas dos custos!!
         while len(open_list) > 0:
             n = None
-            # print("Parent " + parents[start])
 
             for v in open_list:
-                cost[v] = self.get_arc_cost(parents[v], v) + self.m_h[v]
+                #cost[v] = self.get_arc_cost(parents[v], v) + self.m_h[v]
 
-                if n == None or cost[v] < cost[n]:
+                if n == None or cost[v] + self.m_h[v] < cost[n] + self.m_h[n]:
                     n = v
 
             if n == None:
                 print('Path does not exist!')
                 return None
 
+            #print("Parent " + str(parents[n]))
+
             if n != start:
                 x, y = n
                 # print(n)
-                a, b = nodo_ant
-                print(nodo_ant)
-                print(n)
+                a, b = parents[n]
+                #print(nodo_ant)
+                print(str((a, b)))
                 # print("----------------------------")
                 vc, vl = (x - a, y - b)
-                speed = (speed[0] + vc, speed[1] + vl)
+                speed[n] = (speed[parents[n]][0] + vc, speed[parents[n]][1] + vl)
                 nodo_ant = n
-                print(speed)
-                print('-----------------------------')
+                #print(speed)
+                #print('-----------------------------')
+
+            print(n)
+            print(cost[n] + self.m_h[n])
+            print(speed)
+            print(open_list)
 
             if n in end:
                 reconst_path = []
@@ -353,12 +407,24 @@ class Graph:
 
                 return (reconst_path, self.calcula_custo(reconst_path))
 
-            for (m, weight) in self.getNeighboursV(n, speed):
+            for (m, weight) in self.getNeighboursV(n, speed[n]):
                 # Se o nodo corrente nao esta na open nem na closed list
                 # adiciona-lo à open_list e marcar o antecessor
                 if m not in open_list and m not in closed_list:
                     open_list.add(m)
                     parents[m] = n
+                    cost[m] = cost[n] + weight
+                else:
+                    if cost[m] > cost[n] + weight:
+                        cost[m] = cost[n] + weight
+                        parents[m] = n
+
+                        if m in closed_list:
+                            closed_list.remove(m)
+                            open_list.add(m)
+
+            closed_list.add(n)
+            open_list.remove(n)
 
         print('Path does not exist!')
         return None
@@ -366,8 +432,20 @@ class Graph:
     #############################################
     # Pesquisa gulosa
     #############################################
+    def checkNeighbours(self, nodo, list):
 
-    def greedy(self, start, end):
+        x, y = nodo
+
+        for (adjacente, coord, peso) in self.m_graph[nodo]:
+            cx, cy = coord
+
+            if adjacente != 'X' and x-1 <= cx <= x+1 and y-1 <= cy <= y+1 and coord in list:
+                #print('Cheguei aqui!')
+                return True
+
+        return False
+
+    def greedy(self, start, end, wall):
         # open_list é uma lista de nodos visitados, mas com vizinhos
         # que ainda não foram todos visitados, começa com o  start
         # closed_list é uma lista de nodos visitados
@@ -375,15 +453,18 @@ class Graph:
         open_list = set([start])
         closed_list = set([])
         nodo_ant = start
-        speed = (0, 0)
+        speed = {}
+        speed[start] = (0, 0) # TODO: Mudar a  velocidade para ser uma mapa de mapas, i.e, {(3,1): {(3,0): (1,0), ...}, ...}
 
         # parents é um dicionário que mantém o antecessor de um nodo
         # começa com start
         parents = {}
-        parents[start] = start
+        parents[start] = []
+        #parents[start].append(start)
 
         while len(open_list) > 0:
             n = None
+            hit = False
 
             # encontraf nodo com a menor heuristica
             for v in open_list:
@@ -394,28 +475,17 @@ class Graph:
                 print('Path does not exist!')
                 return None
 
-            if n != start:
-                x, y = n
-                # print(n)
-                a, b = nodo_ant
-                print(nodo_ant)
-                print(n)
-                # print("----------------------------")
-                vc, vl = (x - a, y - b)
-                speed = (speed[0] + vc, speed[1] + vl)
-                nodo_ant = n
-                print(speed)
-                print('-----------------------------')
-
             # se o nodo corrente é o destino
             # reconstruir o caminho a partir desse nodo até ao start
             # seguindo o antecessor
             if n in end:
                 reconst_path = []
 
-                while parents[n] != n:
+                while parents[n]:
+                    parents[n].reverse()
+                    p = parents[n].pop()
                     reconst_path.append(n)
-                    n = parents[n]
+                    n = p
 
                 reconst_path.append(start)
 
@@ -423,13 +493,43 @@ class Graph:
 
                 return (reconst_path, self.calcula_custo(reconst_path))
 
+            if n in wall:
+                hit = True
+                #print(nodo_ant)
+                #print(n)
+                #temp = n
+                open_list.remove(n)
+                closed_list.add(n)
+                parents[nodo_ant].append(n)
+                #nodo_ant = temp
+                if self.checkNeighbours(n, open_list): # TODO: Rever esta função!
+                    speed[n] = (0, 0)
+                n = nodo_ant
+                #closed_list.add(nodo_ant)
+                open_list.add(n)
+
+            print(n)
+            print(open_list)
+
+            if n != start and hit == False:
+                x, y = n
+                #print(n)
+                a, b = parents[n][len(parents[n])-1]
+                vc, vl = (x - a, y - b)
+                speed[n] = (speed[parents[n][len(parents[n])-1]][0] + vc, speed[parents[n][len(parents[n])-1]][1] + vl)
+                nodo_ant = n
+                #print(nodo_ant)
+            #print(n)
+            #print(speed[n])
+
             # para todos os vizinhos  do nodo corrente
-            for (m, weight) in self.getNeighboursV(n, speed):
+            for (m, weight) in self.getNeighboursV(n, speed[n], end):
                 # Se o nodo corrente nao esta na open nem na closed list
                 # adiciona-lo à open_list e marcar o antecessor
                 if m not in open_list and m not in closed_list:
                     open_list.add(m)
-                    parents[m] = n
+                    parents[m] = []
+                    parents[m].append(n)
 
             # remover n da open_list e adiciona-lo à closed_list
             # porque todos os seus vizinhos foram inspecionados
@@ -438,3 +538,147 @@ class Graph:
 
         print('Path does not exist!')
         return None
+    def calcula_est(self, estima):
+        l = list(estima.keys())
+        min_estima = estima[l[0]]
+        node = l[0]
+        for k, v in estima.items():
+            if v < min_estima:
+                min_estima = v
+                node = k
+        return node
+
+    ##########################################
+    #    A*
+    ##########################################
+
+    def procura_aStar(self, start, end, wall):
+        # open_list is a list of nodes which have been visited, but who's neighbors
+        # haven't all been inspected, starts off with the start node
+        # closed_list is a list of nodes which have been visited
+        # and who's neighbors have been inspected
+        open_list = {start}
+        closed_list = set([])
+        nodo_ant = start
+        speed = {}
+        speed[start] = (0, 0)
+
+        # g contains current distances from start_node to all other nodes
+        # the default value (if it's not found in the map) is +infinity
+        g = {}  ##  g é apra substiruir pelo peso  ???
+
+        g[start] = 0
+
+        # parents contains an adjacency map of all nodes
+        parents = {}
+        parents[start] = []
+        n = None
+        while len(open_list) > 0:
+            # find a node with the lowest value of f() - evaluation function
+            hit = False
+            calc_heurist = {}
+            flag = 0
+            for v in open_list:
+                if n == None:
+                    n = v
+                else:
+                    flag = 1
+                    calc_heurist[v] = g[v] + self.getH(v)
+            if flag == 1:
+                min_estima = self.calcula_est(calc_heurist)
+                n = min_estima
+            if n == None:
+                print('Path does not exist!')
+                return None
+
+            # if the current node is the stop_node
+            # then we begin reconstructin the path from it to the start_node
+            if n in end:
+                reconst_path = []
+
+                while parents[n]:
+                    parents[n].reverse()
+                    p = parents[n].pop()
+                    reconst_path.append(n)
+                    n = p
+
+                reconst_path.append(start)
+
+                reconst_path.reverse()
+
+                # print('Path found: {}'.format(reconst_path))
+                return (reconst_path, self.calcula_custo(reconst_path))
+
+            if n in wall:
+                hit = True
+                # print(nodo_ant)
+                # print(n)
+                # temp = n
+                open_list.remove(n)
+                closed_list.add(n)
+                parents[nodo_ant].append(n)
+                # nodo_ant = temp
+                if self.checkNeighbours(n, open_list):  # TODO: Rever esta função!
+                    speed[n] = (0, 0)
+                n = nodo_ant
+                # closed_list.add(nodo_ant)
+                open_list.add(n)
+
+            if n != start and hit == False:
+                x, y = n
+                #print(n)
+                a, b = parents[n][len(parents[n])-1]
+                vc, vl = (x - a, y - b)
+                speed[n] = (speed[parents[n][len(parents[n])-1]][0] + vc, speed[parents[n][len(parents[n])-1]][1] + vl)
+                #if speed[n][0] > 5:
+                #    speed[n] = (5, speed[n][1])
+                #if speed[n][1] > 5:
+                #    speed[n] = (speed[n][0], 5)
+                #if speed[n][0] < -5:
+                #    speed[n] = (-5, speed[n][1])
+                #if speed[n][1] < -5:
+                #    speed[n] = (speed[n][0], -5)
+                nodo_ant = n
+
+            #print(n)
+            #print(speed[n])
+
+            # for all neighbors of the current node do
+            for (m, weight) in self.getNeighboursV(n, speed[n], end):  # definir função getneighbours  tem de ter um par nodo peso
+                # if the current node isn't in both open_list and closed_list
+                # add it to open_list and note n as it's parent
+                if m not in open_list and m not in closed_list:
+                    open_list.add(m)
+                    parents[m] = []
+                    parents[m].append(n)
+                    g[m] = g[n] + weight
+
+                # otherwise, check if it's quicker to first visit n, then m
+                # and if it is, update parent data and g data
+                # and if the node was in the closed_list, move it to open_list
+                else:
+                    if g[m] > g[n] + weight:
+                        g[m] = g[n] + weight
+                        parents[m].append(n)
+
+                        if m in closed_list:
+                            closed_list.remove(m)
+                            open_list.add(m)
+
+            # remove n from the open_list, and add it to closed_list
+            # because all of his neighbors were inspected
+            open_list.remove(n)
+            closed_list.add(n)
+
+        print('Path does not exist!')
+        return None
+
+    ###################################3
+    # devolve heuristica do nodo
+    ####################################
+
+    def getH(self, nodo):
+        if nodo not in self.m_h.keys():
+            return 1000
+        else:
+            return (self.m_h[nodo])

@@ -10,16 +10,19 @@ from math import sqrt
 mapElem = {}
 g = Graph()
 finish_line = set()
+wall = []
 
 def parseMapa():
     i = 0
-    with open('mapa.txt') as f:
+    with open('curvaMapa.txt') as f:
         contents = f.readlines()
         for content in contents:
             content = content.strip('\n')
             mapElem[i] = content.split(" ")
             i += 1
     #print('Linhas: ' + str(i) + '\nColunas: ' + str(len(mapElem[0])))
+    g.rows = len(mapElem)
+    g.columns = len(mapElem[0])
 
 def desenhaMapa(resultado):
     lista_resultado=resultado[0]
@@ -125,6 +128,8 @@ def addToGraph(elem1,coord1,elem2,coord2):
         finish_line.add(coord1)
     if elem2 == 'X':
         g.add_edge(elem1, coord1, elem2, coord2, 25)
+        wall.append(coord2)
+
     elif elem2 == '-' or elem2 == 'F':
         g.add_edge(elem1, coord1, elem2, coord2, 1)
 
@@ -134,7 +139,7 @@ def getDist(coord):
     dist = 0
 
     for (a, b) in finish_line:
-        current = sqrt((a-x)**2 + (b-y)**2)
+        current = abs(a-x) + abs(b-y)
         if dist == 0 or current < dist:
             dist = current
 
@@ -145,7 +150,7 @@ def setUpHeuristica():
     for nodo in g.m_nodes:
         coord = nodo.getCoord()
         name = nodo.getName()
-        h = getDist(coord)
+        #h = getDist(coord)
         if (name != 'F'):
             h = getDist(coord)
             g.add_heuristica(coord, name, h)
@@ -161,10 +166,47 @@ def printGraph():
 
 # Tenho de adicionar cenas ao nodo para conseguir usar as fórmulas da posição/velocidade/aceleração que estão no enunciado
 parseMapa()
-setUpGraphNotInformed()
+#setUpGraphNotInformed()
 #print(g.m_nodes)
-#setUpGraphInformed()
-#setUpHeuristica()
+setUpGraphInformed()
+#setUpGraphNotInformed()
+#print(g.procura_BFS_NotHitting(start,finish_line))
+setUpHeuristica()
+#print(g.greedy(start,finish_line,wall)) # TODO: Rever algoritmo para o gigaMap (devia estar a funcionar)
+#print(g.a_star(start,finish_line))
+print(g.procura_aStar(start, finish_line, wall))
+
+#path, cost = g.procura_aStar(start, finish_line)
+speed = (0, 0)
+nodo_ant = start
+newP = []
+
+for n in finish_line:
+    if n != start:
+        x, y = n
+        a, b = nodo_ant
+        vx, vy = speed
+        #print(speed)
+        if x == (a + speed[0]*2 + 1) and y == (b + speed[1]):
+            vx *= 2 + 1
+            newP.append(n)
+        elif x == (a + speed[0]*2 + -1) and y == (b + speed[1]):
+            vx *= 2 + -1
+            newP.append(n)
+        elif x == (a + speed[0]*2) and y == (b + speed[1] + 1):
+            vy *= 2 + 1
+            newP.append(n)
+        elif x == (a + speed[0]*2) and y == (b + speed[1] + -1):
+            vy *= 2 + -1
+            newP.append(n)
+        speed = (vx, vy)
+    else:
+        newP.append(n)
+
+    nodo_ant = n
+
+#print(newP)
+#print(g.m_h)
 #printGraph()
 #print(start)
 #print(finish_line)
@@ -222,7 +264,7 @@ def multiplayer(players):
     for k in range(players):
         print('Player ' + str(k) + ':\n' + 'Path: ' + ''.join(str(e) + ' ' for e in paths[k]) + '\nCost:' + str(costs[k]))
 
-multiplayer(5)
+#multiplayer(5)
 #nodo1 = start
 #ant1 = None
 #nodo2 = start
