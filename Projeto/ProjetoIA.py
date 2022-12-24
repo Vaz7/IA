@@ -11,10 +11,22 @@ mapElem = {}
 g = Graph()
 finish_line = set()
 wall = []
+start = None
+def getStart():
+    return start
 
-def parseMapa():
+def getEnd():
+    return finish_line
+
+def getGrafo():
+    return g
+
+def getWall():
+    return wall
+
+def parseMapa(mapa):
     i = 0
-    with open('curvaMapa.txt') as f:
+    with open(mapa) as f:
         contents = f.readlines()
         for content in contents:
             content = content.strip('\n')
@@ -24,11 +36,8 @@ def parseMapa():
     g.rows = len(mapElem)
     g.columns = len(mapElem[0])
 
-def desenhaMapa(resultado):
+def desenhaMapa(resultado, filepath):
     lista_resultado=resultado[0]
-
-    filepath = 'mapa.txt'
-
 
     with open(filepath) as fp:
         lines = fp.readlines()
@@ -109,7 +118,7 @@ def setUpGraphInformed():
     for i in range(rows):
         for j in range(columns):
             for k in range(rows):
-                for n in range(columns):
+                for m in range(columns):
                     if (aux, temp) != (x, y) and aux <= columns-1:
                         addToGraph(mapElem[y][x],(x,y),mapElem[temp][aux],(aux,temp))
                     aux += 1
@@ -123,14 +132,14 @@ def setUpGraphInformed():
 def addToGraph(elem1,coord1,elem2,coord2):
     if elem1 == 'P':
         global start
+        global wall
         start = coord1
     if elem1 == 'F':
         finish_line.add(coord1)
     if elem2 == 'X':
         g.add_edge(elem1, coord1, elem2, coord2, 25)
         wall.append(coord2)
-
-    elif elem2 == '-' or elem2 == 'F':
+    elif elem2 == '-' or elem2 == 'F' or elem2 == 'P':
         g.add_edge(elem1, coord1, elem2, coord2, 1)
 
 
@@ -165,45 +174,32 @@ def printGraph():
         print(g.m_graph[coord])
 
 # Tenho de adicionar cenas ao nodo para conseguir usar as fórmulas da posição/velocidade/aceleração que estão no enunciado
-parseMapa()
+#parseMapa("gigaMap.txt")
 #setUpGraphNotInformed()
 #print(g.m_nodes)
-setUpGraphInformed()
+#setUpGraphInformed()
 #setUpGraphNotInformed()
-#print(g.procura_BFS_NotHitting(start,finish_line))
-setUpHeuristica()
-#print(g.greedy(start,finish_line,wall)) # TODO: Rever algoritmo para o gigaMap (devia estar a funcionar)
+#print(g.procura_BFS(start,finish_line))
+#setUpHeuristica()
+#print(g.greedy(start,finish_line,wall, (0, 0)))
+#print(g.greedySpeedless(start,finish_line,wall))
 #print(g.a_star(start,finish_line))
-print(g.procura_aStar(start, finish_line, wall))
+#path, cost = g.procura_aStar(start, finish_line, wall, (0, 0))
+#current = 0
+#pathFinal = []
 
-#path, cost = g.procura_aStar(start, finish_line)
-speed = (0, 0)
-nodo_ant = start
-newP = []
+#while current + 1 < len(path):
+#    res, cost = g.a_star(path[current], [path[current + 1]], wall)
+#    if res[0] in pathFinal:
+#        if len(res) > 1 and res[0] == res[1]:
+#            res.pop(0)
+#        res.pop(0)
+#    pathFinal = pathFinal + res #list(set(res) - set(pathFinal))
+#    current += 1
 
-for n in finish_line:
-    if n != start:
-        x, y = n
-        a, b = nodo_ant
-        vx, vy = speed
-        #print(speed)
-        if x == (a + speed[0]*2 + 1) and y == (b + speed[1]):
-            vx *= 2 + 1
-            newP.append(n)
-        elif x == (a + speed[0]*2 + -1) and y == (b + speed[1]):
-            vx *= 2 + -1
-            newP.append(n)
-        elif x == (a + speed[0]*2) and y == (b + speed[1] + 1):
-            vy *= 2 + 1
-            newP.append(n)
-        elif x == (a + speed[0]*2) and y == (b + speed[1] + -1):
-            vy *= 2 + -1
-            newP.append(n)
-        speed = (vx, vy)
-    else:
-        newP.append(n)
-
-    nodo_ant = n
+#print((pathFinal,g.calcula_custo(pathFinal)))
+#print(g.a_star(start, finish_line, wall))
+#desenhaMapa(g.procura_aStar(start,finish_line,wall), "gigaMap.txt")
 
 #print(newP)
 #print(g.m_h)
@@ -225,7 +221,7 @@ for n in finish_line:
 #        low = custo
 #        path = current
 
-def multiplayer(players):
+def multiplayerBFS(players, mapa):
     nodos = []
     paths = []
     prevs = []
@@ -248,7 +244,8 @@ def multiplayer(players):
                 setUpGraphNotInformed()
                 res, cost = g.procura_BFS(nodos[j], finish_line)
                 prevs[j] = nodos[j]
-                nodos[j] = res[1]
+                if len(res) > 1:
+                    nodos[j] = res[1]
                 costs[j] += g.get_arc_cost(prevs[j],nodos[j])
                 paths[j].append(nodos[j])
 
@@ -263,8 +260,81 @@ def multiplayer(players):
 
     for k in range(players):
         print('Player ' + str(k) + ':\n' + 'Path: ' + ''.join(str(e) + ' ' for e in paths[k]) + '\nCost:' + str(costs[k]))
+        desenhaMapa((paths[k], costs[k]), mapa)
 
-#multiplayer(5)
+parseMapa("mapa.txt")
+setUpGraphInformed()
+setUpHeuristica()
+def multiplayerASTAR(players, mapa):
+    nodos = []
+    paths = []
+    prevs = []
+    finished = []
+    costs = []
+    newMap = deepcopy(mapElem)
+    speed = {}
+
+    for i in range(players):
+        nodos.append(start)
+        speed[i] = (0, 0)
+        prevs.append(start)
+        costs.append(0)
+        paths.append([])
+        paths[i].append(nodos[i])
+
+    while len(finished) != players:
+        for j in range(players):
+            speedS = sorted(speed)
+            speedS.reverse()
+            #aux = speedS[j]
+            aux = j
+            if aux not in finished:
+                global g
+                g = Graph()
+                setUpGraphInformed()
+                setUpHeuristica()
+                cx, cy = nodos[aux]
+                px, py = prevs[aux]
+                vc, vl = (cx - px, cy - py)
+                speed[aux] = (speed[aux][0] + vc, speed[aux][1] + vl)
+                #print(speed[aux])
+                #print(nodos[aux])
+                #print(finish_line)
+                #print(wall)
+                res, cost = g.procura_aStar(nodos[aux], finish_line, wall, speed[aux])
+                #print(res)
+                prevs[aux] = nodos[aux]
+                if len(res) > 1:
+                    nodos[aux] = res[1]
+                costs[aux] += g.get_arc_cost(prevs[aux], nodos[aux])
+                paths[aux].append(nodos[aux])
+
+                if nodos[aux] not in finish_line:
+                    x, y = nodos[aux]
+                    mapElem[y][x] = 'O'
+                else:
+                    finished.append(aux)
+
+                a, b = prevs[aux]
+                mapElem[b][a] = newMap[b][a]
+
+    for k in range(players):
+        current = 0
+        pathFinal = []
+
+        while current + 1 < len(paths[k]):
+            res, cost = g.a_star(paths[k][current], [paths[k][current + 1]], wall)
+            if res[0] in pathFinal:
+                if len(res) > 1 and res[0] == res[1]:
+                    res.pop(0)
+                res.pop(0)
+            pathFinal = pathFinal + res #list(set(res) - set(pathFinal))
+            current += 1
+
+        print('Player ' + str(k) + ':\n' + 'Path: ' + ''.join(str(e) + ' ' for e in pathFinal) + '\nCost:' + str(g.calcula_custo((pathFinal))))
+        desenhaMapa((paths[k], costs[k]), mapa)
+multiplayerASTAR(2, "mapa.txt")
+#multiplayer(3)
 #nodo1 = start
 #ant1 = None
 #nodo2 = start
