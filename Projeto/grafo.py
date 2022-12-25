@@ -117,17 +117,18 @@ class Graph:
     ################################################################################
     # Procura DFS
     ####################################################################################
-    def procura_DFS(self, start, end, path=[], visited=set()):
+    def procura_DFS(self, start, end, path=[], visited=set(), seen=[]):
         path.append(start)
         visited.add(start)
 
         if start in end:
             # calcular o custo do caminho funçao calcula custo.
             custoT = self.calcula_custo(path)
-            return (path, custoT)
+            return (path, custoT,seen)
         for (adjacente, coord, peso) in self.m_graph[start]:
             if coord not in visited:
-                resultado = self.procura_DFS(coord, end, path, visited)
+                seen.append(coord)
+                resultado = self.procura_DFS(coord, end, path, visited, seen)
                 if resultado is not None:
                     return resultado
         path.pop()  # se nao encontra remover o que está no caminho......
@@ -147,6 +148,7 @@ class Graph:
         visited = set()
         fila = Queue()
         custo = math.inf
+        seen = []
 
         # adicionar o nodo inicial à fila e aos visitados
         fila.put(start)
@@ -159,6 +161,7 @@ class Graph:
         path_found = False
         while not fila.empty() and path_found == False:
             nodo_atual = fila.get()
+            seen.append(nodo_atual)
 
             nodo = self.getNodo(nodo_atual)
 
@@ -183,7 +186,7 @@ class Graph:
             path.reverse()
             # funçao calcula custo caminho
             custo = self.calcula_custo(path)
-        return (path, custo)
+        return (path, custo, seen)
 
     #####################################################
     # Procura BFS em que o carro nunca bate
@@ -356,6 +359,7 @@ class Graph:
         open_list = {start}
         closed_list = set([])
         nodo_ant = start
+        seen = []
 
         # g contains current distances from start_node to all other nodes
         # the default value (if it's not found in the map) is +infinity
@@ -384,7 +388,7 @@ class Graph:
             if n == None:
                 print('Path does not exist!')
                 return None
-
+            seen.append(n)
             # if the current node is the stop_node
             # then we begin reconstructin the path from it to the start_node
             if n in end:
@@ -401,7 +405,7 @@ class Graph:
                 reconst_path.reverse()
 
                 # print('Path found: {}'.format(reconst_path))
-                return (reconst_path, self.calcula_custo(reconst_path))
+                return (reconst_path, self.calcula_custo(reconst_path), seen)
 
             if n in wall:
                 hit = True
@@ -487,6 +491,7 @@ class Graph:
         nodo_ant = start
         speed = {}
         speed[start] = vel
+        seen = []
 
         # parents é um dicionário que mantém o antecessor de um nodo
         # começa com start
@@ -506,7 +511,7 @@ class Graph:
             if n == None:
                 print('Path does not exist!')
                 return None
-
+            seen.append(n)
             # se o nodo corrente é o destino
             # reconstruir o caminho a partir desse nodo até ao start
             # seguindo o antecessor
@@ -523,7 +528,7 @@ class Graph:
 
                 reconst_path.reverse()
 
-                return (reconst_path, self.calcula_custo(reconst_path))
+                return (reconst_path, self.calcula_custo(reconst_path), seen)
 
             if n in wall:
                 hit = True
@@ -594,6 +599,7 @@ class Graph:
         nodo_ant = start
         speed = {}
         speed[start] = vel
+        seen = []
 
         # g contains current distances from start_node to all other nodes
         # the default value (if it's not found in the map) is +infinity
@@ -622,7 +628,7 @@ class Graph:
             if n == None:
                 print('Path does not exist!')
                 return None
-
+            seen.append(n)
             # if the current node is the stop_node
             # then we begin reconstructin the path from it to the start_node
             if n in end:
@@ -639,7 +645,7 @@ class Graph:
                 reconst_path.reverse()
 
                 # print('Path found: {}'.format(reconst_path))
-                return (reconst_path, self.calcula_custo(reconst_path))
+                return (reconst_path, self.calcula_custo(reconst_path), seen)
 
             if n in wall:
                 hit = True

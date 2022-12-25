@@ -420,23 +420,27 @@ while True:
                 # modo de jogo singleplayer
                 if escolhas.__contains__(5):
                     ProjetoIA.setUpGraphNotInformed()
-                    print(grafo.Graph.procura_BFS(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd()))
-                    ProjetoIA.desenhaMapa(grafo.Graph.procura_BFS(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd()), "mapa.txt")
+                    path, cost, seen = grafo.Graph.procura_BFS(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd())
+                    print((path,cost))
+                    print(seen)
+                    ProjetoIA.desenhaMapa((path, cost), "mapa.txt")
                     break
                 elif escolhas.__contains__(6):
                     ProjetoIA.setUpGraphNotInformed()
-                    print(grafo.Graph.procura_DFS(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd(), path=[], visited=set()))
-                    ProjetoIA.desenhaMapa(grafo.Graph.procura_DFS(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd(), path=[], visited=set()), "mapa.txt")
+                    path, cost, seen = grafo.Graph.procura_DFS(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd(), path=[], visited=set(), seen=[])
+                    print((path, cost))
+                    print(seen)
+                    ProjetoIA.desenhaMapa((path,cost), "mapa.txt")
                     break
                 elif escolhas.__contains__(7):
                     ProjetoIA.setUpGraphInformed()
                     ProjetoIA.setUpHeuristica()
                     #print(grafo.Graph.procura_aStar(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd(), ProjetoIA.getWall()))
-                    path, cost = ProjetoIA.getGrafo().procura_aStar(ProjetoIA.getStart(), ProjetoIA.getEnd(), ProjetoIA.getWall(), (0, 0))
+                    path, cost, seen = ProjetoIA.getGrafo().procura_aStar(ProjetoIA.getStart(), ProjetoIA.getEnd(), ProjetoIA.getWall(), (0, 0))
                     current = 0
                     pathFinal = []
                     while current + 1 < len(path):
-                        res, cost = ProjetoIA.getGrafo().a_star(path[current], [path[current + 1]], ProjetoIA.getWall())
+                        res, cost, s = ProjetoIA.getGrafo().a_star(path[current], [path[current + 1]], ProjetoIA.getWall())
                         if res[0] in pathFinal:
                             if len(res) > 1 and res[0] == res[1]:
                                 res.pop(0)
@@ -444,17 +448,18 @@ while True:
                         pathFinal = pathFinal + res  # list(set(res) - set(pathFinal))
                         current += 1
                     print((pathFinal, ProjetoIA.getGrafo().calcula_custo(pathFinal)))
+                    print(seen + list(set(s) - set(seen)))
                     ProjetoIA.desenhaMapa((path,cost), "mapa.txt")
                     break
                 elif escolhas.__contains__(8):
                     ProjetoIA.setUpGraphInformed()
                     ProjetoIA.setUpHeuristica()
                     #print(grafo.Graph.greedy(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd(), ProjetoIA.getWall()))
-                    path, cost = ProjetoIA.getGrafo().greedy(ProjetoIA.getStart(), ProjetoIA.getEnd(), ProjetoIA.getWall(), (0, 0))
+                    path, cost, seen = ProjetoIA.getGrafo().greedy(ProjetoIA.getStart(), ProjetoIA.getEnd(), ProjetoIA.getWall(), (0, 0))
                     current = 0
                     pathFinal = []
                     while current + 1 < len(path):
-                        res, cost = ProjetoIA.getGrafo().a_star(path[current], [path[current + 1]], ProjetoIA.getWall())
+                        res, cost, s = ProjetoIA.getGrafo().a_star(path[current], [path[current + 1]], ProjetoIA.getWall())
                         if res[0] in pathFinal:
                             if len(res) > 1 and res[0] == res[1]:
                                 res.pop(0)
@@ -462,6 +467,7 @@ while True:
                         pathFinal = pathFinal + res  # list(set(res) - set(pathFinal))
                         current += 1
                     print((pathFinal, ProjetoIA.getGrafo().calcula_custo(pathFinal)))
+                    print(seen + list(set(s) - set(seen)))
                     ProjetoIA.desenhaMapa((path,cost), "mapa.txt")
                     break
             elif escolhas.__contains__(2):
@@ -493,23 +499,27 @@ while True:
                 # modo de jogo singleplayer
                 if escolhas.__contains__(5):
                     ProjetoIA.setUpGraphNotInformed()
-                    print(grafo.Graph.procura_BFS(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd()))
-                    ProjetoIA.desenhaMapa(grafo.Graph.procura_BFS(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd()), "gigaMap.txt")
+                    path, cost, seen = grafo.Graph.procura_BFS(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd())
+                    print((path, cost))
+                    print(seen)
+                    ProjetoIA.desenhaMapa((path, cost), "gigaMap.txt")
                     break
                 elif escolhas.__contains__(6):
                     ProjetoIA.setUpGraphNotInformed()
-                    print(grafo.Graph.procura_DFS(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd(), path=[], visited=set()))
-                    ProjetoIA.desenhaMapa(grafo.Graph.procura_DFS(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd(), path=[], visited=set()), "gigaMap.txt")
+                    path, cost, seen = grafo.Graph.procura_DFS(ProjetoIA.getGrafo(), ProjetoIA.getStart(), ProjetoIA.getEnd(), path=[], visited=set(), seen=[])
+                    print((path, cost))
+                    print(seen)
+                    ProjetoIA.desenhaMapa((path,cost), "gigaMap.txt")
                     break
                 elif escolhas.__contains__(7):
                     ProjetoIA.setUpGraphInformed()
                     ProjetoIA.setUpHeuristica()
                     # print(grafo.Graph.procura_aStar(g, start, end, wall))
-                    path, cost = ProjetoIA.getGrafo().procura_aStar(ProjetoIA.getStart(), ProjetoIA.getEnd(), ProjetoIA.getWall(), (0, 0))
+                    path, cost, seen = ProjetoIA.getGrafo().procura_aStar(ProjetoIA.getStart(), ProjetoIA.getEnd(), ProjetoIA.getWall(), (0, 0))
                     current = 0
                     pathFinal = []
                     while current + 1 < len(path):
-                        res, cost = ProjetoIA.getGrafo().a_star(path[current], [path[current + 1]], ProjetoIA.getWall())
+                        res, cost, s = ProjetoIA.getGrafo().a_star(path[current], [path[current + 1]], ProjetoIA.getWall())
                         if res[0] in pathFinal:
                             if len(res) > 1 and res[0] == res[1]:
                                 res.pop(0)
@@ -517,17 +527,18 @@ while True:
                         pathFinal = pathFinal + res  # list(set(res) - set(pathFinal))
                         current += 1
                     print((pathFinal, ProjetoIA.getGrafo().calcula_custo(pathFinal)))
+                    print(seen + list(set(s) - set(seen)))
                     ProjetoIA.desenhaMapa((path, cost), "gigaMap.txt")
                     break
                 elif escolhas.__contains__(8):
                     ProjetoIA.setUpGraphInformed()
                     ProjetoIA.setUpHeuristica()
                     # print(grafo.Graph.greedy(g, start, end, wall))
-                    path, cost = ProjetoIA.getGrafo().greedy(ProjetoIA.getStart(), ProjetoIA.getEnd(), ProjetoIA.getWall(), (0, 0))
+                    path, cost, seen = ProjetoIA.getGrafo().greedy(ProjetoIA.getStart(), ProjetoIA.getEnd(), ProjetoIA.getWall(), (0, 0))
                     current = 0
                     pathFinal = []
                     while current + 1 < len(path):
-                        res, cost = ProjetoIA.getGrafo().a_star(path[current], [path[current + 1]], ProjetoIA.getWall())
+                        res, cost, s = ProjetoIA.getGrafo().a_star(path[current], [path[current + 1]], ProjetoIA.getWall())
                         if res[0] in pathFinal:
                             if len(res) > 1 and res[0] == res[1]:
                                 res.pop(0)
@@ -535,6 +546,7 @@ while True:
                         pathFinal = pathFinal + res  # list(set(res) - set(pathFinal))
                         current += 1
                     print((pathFinal, ProjetoIA.getGrafo().calcula_custo(pathFinal)))
+                    print(seen + list(set(s) - set(seen)))
                     ProjetoIA.desenhaMapa((path, cost), "gigaMap.txt")
                     break
             elif escolhas.__contains__(2):

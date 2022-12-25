@@ -242,7 +242,7 @@ def multiplayerBFS(players, mapa):
                 global g
                 g = Graph()
                 setUpGraphNotInformed()
-                res, cost = g.procura_BFS(nodos[j], finish_line)
+                res, cost, seen = g.procura_BFS(nodos[j], finish_line)
                 prevs[j] = nodos[j]
                 if len(res) > 1:
                     nodos[j] = res[1]
@@ -262,9 +262,9 @@ def multiplayerBFS(players, mapa):
         print('Player ' + str(k) + ':\n' + 'Path: ' + ''.join(str(e) + ' ' for e in paths[k]) + '\nCost:' + str(costs[k]))
         desenhaMapa((paths[k], costs[k]), mapa)
 
-parseMapa("mapa.txt")
-setUpGraphInformed()
-setUpHeuristica()
+#parseMapa("mapa.txt")
+#setUpGraphInformed()
+#setUpHeuristica()
 def multiplayerASTAR(players, mapa):
     nodos = []
     paths = []
@@ -286,13 +286,13 @@ def multiplayerASTAR(players, mapa):
         for j in range(players):
             speedS = sorted(speed)
             speedS.reverse()
-            #aux = speedS[j]
-            aux = j
+            aux = speedS[j]
+            #aux = j
             if aux not in finished:
                 global g
                 g = Graph()
                 setUpGraphInformed()
-                setUpHeuristica()
+                #setUpHeuristica()
                 cx, cy = nodos[aux]
                 px, py = prevs[aux]
                 vc, vl = (cx - px, cy - py)
@@ -301,7 +301,7 @@ def multiplayerASTAR(players, mapa):
                 #print(nodos[aux])
                 #print(finish_line)
                 #print(wall)
-                res, cost = g.procura_aStar(nodos[aux], finish_line, wall, speed[aux])
+                res, cost, seen = g.procura_aStar(nodos[aux], finish_line, wall, speed[aux])
                 #print(res)
                 prevs[aux] = nodos[aux]
                 if len(res) > 1:
@@ -323,7 +323,7 @@ def multiplayerASTAR(players, mapa):
         pathFinal = []
 
         while current + 1 < len(paths[k]):
-            res, cost = g.a_star(paths[k][current], [paths[k][current + 1]], wall)
+            res, cost, s = g.a_star(paths[k][current], [paths[k][current + 1]], wall)
             if res[0] in pathFinal:
                 if len(res) > 1 and res[0] == res[1]:
                     res.pop(0)
@@ -333,7 +333,7 @@ def multiplayerASTAR(players, mapa):
 
         print('Player ' + str(k) + ':\n' + 'Path: ' + ''.join(str(e) + ' ' for e in pathFinal) + '\nCost:' + str(g.calcula_custo((pathFinal))))
         desenhaMapa((paths[k], costs[k]), mapa)
-multiplayerASTAR(2, "mapa.txt")
+#multiplayerASTAR(2, "mapa.txt")
 #multiplayer(3)
 #nodo1 = start
 #ant1 = None
